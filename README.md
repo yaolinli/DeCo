@@ -86,11 +86,11 @@ export HF_ENDPOINT=https://hf-mirror.com
 
 We compare three types of vision-language projectors:
 
-| Type            | Compression | Trainable | Description                              |
-|-----------------|-------------|-----------|------------------------------------------|
-| `linear`        | ✖ No        | ✅ Yes    | Projects features without compression     |
-| `qformer`       | ✅ 576→144   | ✅ Yes    | Query-based semantic abstraction         |
-| `avgpool (DeCo)`| ✅ 576→144   | ❌ No     | Patch-level compression only (ours)      |
+| Type            | Compression | Description                              |
+|-----------------|-------------|------------------------------------------|
+| `linear`        | ✖ No        | Projects features without compression     |
+| `qformer`       | ✅ 576→144   | Query-based semantic abstraction         |
+| `avgpool (DeCo)`| ✅ 576→144   | Patch-level compression only (ours)      |
 
 ---
 
@@ -140,23 +140,43 @@ done
 
 
 ## 📊 Sample Visualization
+Input Image and Text Prompt:
+### "A pot of green plants"
+<img src="examples/COCO_train2014_000000334463.jpg">
+
+
+### Q-Former (576->144 visual tokens)
 
 Here is an example visualization for the `qformer2_144` projector, which uses 12x12 query tokens. The visualization, prompted by "A pot of green plants", decouples the final `Text-to-Image` relevance map.
 
 The visualization below decouples the final `Text-to-Image` relevance (`R_t2i`) into two stages, following the formula **`R_t2i` = `R_t2q` x `R_q2i`**:
 
+with heatmap `R_t2q`: `R_t_q-rgae-A-pot-of-green-plants-qformer2_144-.png`
 | `R_t2i` (Text-to-Image) | `R_t2q` (Text-to-Query) | `R_q2i` (Query-to-Image) |
 | :---: | :---: | :---: |
 | <img src="examples/R_t_i-rgae-A-pot-of-green-plants-qformer2_144-.png" width="300"> | <img src="examples/R_t_q-rgae-A-pot-of-green-plants-qformer2_144-.png" width="300"> | <img src="examples/R_q_i-rgae-A-pot-of-green-plants-qformer2_144-.png" width="300"> |
 
-or with `R_t_q-rgae-A-pot-of-green-plants-qformer2_144-_grid.png`
+or with grid map `R_t2q`: `R_t_q-rgae-A-pot-of-green-plants-qformer2_144-_grid.png`
 
 | `R_t2i` (Text-to-Image) | `R_t2q` (Text-to-Query) | `R_q2i` (Query-to-Image) |
 | :---: | :---: | :---: |
 | <img src="examples/R_t_i-rgae-A-pot-of-green-plants-qformer2_144-.png" width="300"> | <img src="examples/R_t_q-rgae-A-pot-of-green-plants-qformer2_144-_grid.png" width="300"> | <img src="examples/R_q_i-rgae-A-pot-of-green-plants-qformer2_144-.png" width="300"> |
 
 
-- **`R_t2i` (left)**: The final aggregated relevance map. It highlights the image regions most relevant to the generated text, resulting from the combination of the next two maps.
+- **`R_t2i` (left)**: The final aggregated relevance map that highlights the image regions most relevant to the generated text, resulting from the combination of the next two maps.
 - **`R_t2q` (middle)**: This grid shows the importance of each of the 144 query tokens for generating the text. The color intensity of each cell indicates the token's relevance to the text prompt.
 - **`R_q2i` (right)**: This grid visualizes the spatial focus of each query token on the image. Each cell is a heatmap showing where that specific token is "looking".
----
+
+### Average Pooling (576->144 visual tokens)
+
+| `R_t2i` (Text-to-Image) | `R_t2q` (Text-to-Query) | `R_q2i` (Query-to-Image) |
+| :---: | :---: | :---: |
+| <img src="examples/R_t_i-rgae-A-pot-of-green-plants-avgpool2_144-.png" width="300"> | <img src="examples/R_t_q-rgae-A-pot-of-green-plants-avgpool2_144-.png" width="300"> | <img src="examples/R_q_i-rgae-A-pot-of-green-plants-avgpool2_144-.png" width="300"> |
+
+
+
+### MLP layers (576 visual tokens)
+
+| `R_t2i` (Text-to-Image) | `R_t2q` (Text-to-Query) | `R_q2i` (Query-to-Image) |
+| :---: | :---: | :---: |
+| <img src="examples/R_t_i-rgae-A-pot-of-green-plants-mlp2x_gelu-.png" width="300"> | <img src="examples/R_t_q-rgae-A-pot-of-green-plants-mlp2x_gelu-.png" width="300"> | <img src="examples/R_q_i-rgae-A-pot-of-green-plants-mlp2x_gelu-.png" width="300"> |
